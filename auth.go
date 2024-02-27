@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/mail"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,10 +27,15 @@ func RegisterUser(c *gin.Context) {
 
 	err := c.Bind(&userReg)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(500, gin.H{
 			"message": "Unable to parse request body",
 		})
 		return
+	}
+	if !validateEmail(userReg.Email) {
+		c.JSON(400, gin.H{
+			"message": "Invalid email address",
+		})
 	}
 
 	AddUser(userReg.Email, userReg.Password, userReg.Name)
@@ -46,6 +53,11 @@ func LoginUser(c *gin.Context) {
 			"message": "Unable to parse request body",
 		})
 		return
+	}
+	if !validateEmail(loginDetails.Email) {
+		c.JSON(400, gin.H{
+			"message": "Invalid email address",
+		})
 	}
 
 	token, err := Login(loginDetails.Email, loginDetails.Password)
@@ -110,4 +122,9 @@ func VerifyToken(c *gin.Context) {
 		c.Next()
 		return
 	}
+}
+
+func validateEmail(email string) bool {
+	address, err := mail.ParseAddress(email)
+	return err == nil && address.Address == email
 }
