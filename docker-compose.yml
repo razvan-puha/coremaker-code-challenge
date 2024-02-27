@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  my-service:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: curl -f localhost:8080/ping || exit 1
+      interval: 2s
+      retries: 10
