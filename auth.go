@@ -22,6 +22,16 @@ type UserDetails struct {
 	Name  string `json:"name"`
 }
 
+// RegisterUser godoc
+// @Summary Register a new user
+// @Description Register a new user
+// @Accept  json
+// @Produce  json
+// @Param userRegistration body UserRegistration true "User registration details"
+// @Success 201 {string} string "User registered"
+// @Failure 400 {string} string "Invalid email address"
+// @Failure 500 {string} string "Unable to parse request body"
+// @Router /auth/register [post]
 func RegisterUser(c *gin.Context) {
 	var userReg UserRegistration
 
@@ -44,6 +54,15 @@ func RegisterUser(c *gin.Context) {
 	})
 }
 
+// LoginUser godoc
+// @Summary Login a user
+// @Description Login a user
+// @Accept  json
+// @Produce  json
+// @Param userLogin body UserLogin true "User login details"
+// @Success 200 {string} string "User logged in"
+// @Failure 400 {string} string
+// @Router /auth/login [post]
 func LoginUser(c *gin.Context) {
 	var loginDetails UserLogin
 
@@ -72,6 +91,15 @@ func LoginUser(c *gin.Context) {
 	}
 }
 
+// GetCurrentUserDetails godoc
+// @Summary Get current user details
+// @Description Get current user details
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} UserDetails
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Internal server error"
+// @Router /auth/currentUser [get]
 func GetCurrentUserDetails(c *gin.Context) {
 	auth := c.GetHeader("Authorization")
 	if auth != "" {

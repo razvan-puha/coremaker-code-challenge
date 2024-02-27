@@ -1,0 +1,101 @@
+definitions:
+  main.UserDetails:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    type: object
+  main.UserLogin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  main.UserRegistration:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/currentUser:
+    get:
+      consumes:
+      - application/json
+      description: Get current user details
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.UserDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get current user details
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user
+      parameters:
+      - description: User login details
+        in: body
+        name: userLogin
+        required: true
+        schema:
+          $ref: '#/definitions/main.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged in
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Login a user
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User registration details
+        in: body
+        name: userRegistration
+        required: true
+        schema:
+          $ref: '#/definitions/main.UserRegistration'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered
+          schema:
+            type: string
+        "400":
+          description: Invalid email address
+          schema:
+            type: string
+        "500":
+          description: Unable to parse request body
+          schema:
+            type: string
+      summary: Register a new user
+swagger: "2.0"
