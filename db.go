@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-memdb"
 )
@@ -23,6 +24,7 @@ type LoggedUser struct {
 	issuedToken string
 }
 
+var secretKey = []byte("secret-key")
 var schema = &memdb.DBSchema{
 	Tables: map[string]*memdb.TableSchema{
 		"user": &memdb.TableSchema{
@@ -98,11 +100,21 @@ func Login(email string, password string) (string, error) {
 	}
 
 	user := raw.(*User)
-	token := uuid.New().String()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userId": user.ID,
+		"exp":    time.Now().Add(time.Hour * 24).Unix(),
+		"email":  user.Email,
+		"name":   user.Name,
+	})
+	tokenString, err := token.SignedString(secretKey)
+	if err != nil {
+		return "", err
+	}
+
 	loggedUser := &LoggedUser{
 		userId:      user.ID,
 		loggedAt:    time.Now(),
-		issuedToken: token,
+		issuedToken: tokenString,
 	}
 
 	txn = db.Txn(true)
@@ -114,7 +126,7 @@ func Login(email string, password string) (string, error) {
 
 	txn.Commit()
 
-	return token, nil
+	return tokenString, nil
 
 }
 
