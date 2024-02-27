@@ -4,6 +4,7 @@ import (
 	"net/mail"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type UserRegistration struct {
@@ -129,12 +130,32 @@ func VerifyToken(c *gin.Context) {
 		return
 	}
 
-	token := auth[7:]
+	tokenString := auth[7:]
 
-	loggedUser, err := GetLoggedUserByToken(token)
+	// verify token authenticity
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
 	if err != nil {
 		c.JSON(500, gin.H{
-			"message": "Internal server error",
+			"message": err.Error(),
+		})
+		c.Abort()
+		return
+	}
+
+	if !token.Valid {
+		c.JSON(401, gin.H{
+			"message": "Token not valid",
+		})
+		c.Abort()
+		return
+	}
+
+	loggedUser, err := GetLoggedUserByToken(tokenString)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
 		})
 		c.Abort()
 		return
